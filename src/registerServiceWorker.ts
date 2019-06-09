@@ -1,32 +1,41 @@
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 
-import { register } from 'register-service-worker';
+import { register } from 'register-service-worker'
 
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}service-worker.js`, {
-    ready() {
+    ready () {
       console.log(
         'App is being served from cache by a service worker.\n' +
-        'For more details, visit https://goo.gl/AFskqB',
-      );
+        'For more details, visit https://goo.gl/AFskqB'
+      )
     },
-    registered() {
-      console.log('Service worker has been registered.');
+    registered () {
+      console.log('Service worker has been registered.')
     },
-    cached() {
-      console.log('Content has been cached for offline use.');
+    cached () {
+      console.log('Content has been cached for offline use.')
     },
-    updatefound() {
-      console.log('New content is downloading.');
+    updatefound () {
+      console.log('New content is downloading.')
     },
-    updated() {
-      console.log('New content is available; please refresh.');
+    updated (registration) {
+      console.log('New content is available; please refresh.')
+      let confirmationResult = confirm("New content found! Do you want to reload the app?")
+      if (confirmationResult) registration.waiting.postMessage({action: "skipWaiting"})
     },
-    offline() {
-      console.log('No internet connection found. App is running in offline mode.');
+    offline () {
+      console.log('No internet connection found. App is running in offline mode.')
     },
-    error(error) {
-      console.error('Error during service worker registration:', error);
-    },
-  });
+    error (error) {
+      console.error('Error during service worker registration:', error)
+    }
+  })
+
+  let refreshing: boolean
+  navigator.serviceWorker.addEventListener("controllerchange", e=>{
+    if (refreshing) return
+    window.location.reload()
+    refreshing = true
+  })
 }
